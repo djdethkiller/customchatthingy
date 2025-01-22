@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Chatbox Widget</title>
+    <style>
+        /* General Settings */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: transparent;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+        }
+
+        #chat-box {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            max-width: 400px;
+            height: 100%;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .chat-message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%, #fad0c4 100%);
+            color: white;
+            text-shadow: 1px 1px 2px black;
+            display: flex;
+            align-items: center;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 0.5s ease-in-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chat-message img {
+            height: 32px;
+            width: 32px;
+            margin-right: 10px;
+        }
+
+        .chat-message span {
+            display: inline-block;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-box"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tmi.js/1.8.5/tmi.min.js"></script>
+    <script>
+        const chatBox = document.getElementById('chat-box');
+
+        // Add chat messages to the chat box
+        function addChatMessage(username, message) {
+            const chatMessage = document.createElement('div');
+            chatMessage.className = 'chat-message';
+
+            const userIcon = document.createElement('img');
+            userIcon.src = 'https://i.imgur.com/N2iq7OM.png'; // Replace with a valid rainbow fox icon URL
+
+            const messageContent = document.createElement('span');
+            messageContent.innerHTML = `<strong>${username}:</strong> ${message}`;
+
+            chatMessage.appendChild(userIcon);
+            chatMessage.appendChild(messageContent);
+
+            chatBox.appendChild(chatMessage);
+            chatBox.scrollTop = chatBox.scrollHeight; // Scroll to the newest message
+        }
+
+        // Connect to Twitch chat using tmi.js
+        const client = new tmi.Client({
+            options: { debug: true },
+            connection: { reconnect: true, secure: true },
+            identity: {
+                username: "rainbowartaku", // Replace with your Twitch username
+                password: "oauth:qfrlm27wdadwhyhzufihlpkvdku36e" // Replace with your Twitch OAuth token
+            },
+            channels: ["RainbowArtaku"] // Replace with your Twitch channel name
+        });
+
+        client.connect();
+
+        client.on('message', (channel, tags, message, self) => {
+            if (self) return; // Ignore messages from the bot itself
+            addChatMessage(tags['display-name'], message);
+        });
+    </script>
+</body>
+</html>
